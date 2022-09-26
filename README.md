@@ -41,6 +41,8 @@ Let's prepare our mock data - they are like DB tables.
 
 We need to set our websocket handler - (there is also HTTP version of it)
 ```clj
+(require '[procedure.async :refer [dispatch]])
+
 (defn ws-handler [req]
   (-> (http/websocket-connection req)
     (d/chain
@@ -48,11 +50,11 @@ We need to set our websocket handler - (there is also HTTP version of it)
         (s/consume
           (fn [payload]
             (let [payload (msg/unpack payload)]
-              (pro.async/dispatch (:pro payload) {:data (dissoc payload :pro)
-                                                  :req req
-                                                  :socket socket
-                                                  :send-fn (fn [socket result]
-                                                             (s/put! socket (msg/pack result)))})))
+              (dispatch (:pro payload) {:data (dissoc payload :pro)
+                                        :req req
+                                        :socket socket
+                                        :send-fn (fn [socket result]
+                                                   (s/put! socket (msg/pack result)))})))
           socket)))))
 ```
 

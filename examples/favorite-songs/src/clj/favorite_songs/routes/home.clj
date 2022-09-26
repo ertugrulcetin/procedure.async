@@ -7,7 +7,7 @@
    [aleph.http :as http]
    [manifold.deferred :as d]
    [manifold.stream :as s]
-   [procedure.async :as pro.async]
+   [procedure.async :refer [dispatch]]
    [msgpack.core :as msg]
    [msgpack.clojure-extensions]
    [favorite-songs.common]))
@@ -25,11 +25,11 @@
         (s/consume
           (fn [payload]
             (let [payload (msg/unpack payload)]
-              (pro.async/dispatch (:pro payload) {:data (dissoc payload :pro)
-                                                  :req req
-                                                  :socket socket
-                                                  :send-fn (fn [socket result]
-                                                             (s/put! socket (msg/pack result)))})))
+              (dispatch (:pro payload) {:data (dissoc payload :pro)
+                                        :req req
+                                        :socket socket
+                                        :send-fn (fn [socket result]
+                                                   (s/put! socket (msg/pack result)))})))
           socket)))
     (d/catch
      (fn [_]
