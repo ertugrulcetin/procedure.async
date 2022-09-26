@@ -56,12 +56,17 @@
 
      (reg-pro
        :get-favorite-songs-by-person
-       [:get-person-name->person-id-table :get-song-id->title-table :get-person-id->favorite-song-ids-table]
+       [:get-person-name->person-id-table
+        :get-song-id->title-table
+        :get-person-id->favorite-song-ids-table]
        {:data [:map
                [:data string?]]
         :response [:map
                    [:songs [:vector string?]]]}
-       (fn [[person-name->person-id-table song-id->title-table person-id->favorite-song-ids-table {:keys [req socket data]}]]
+       (fn [[person-name->person-id-table
+             song-id->title-table
+             person-id->favorite-song-ids-table
+             {:keys [req socket data]}]]
          (println "Payload is: " data)
          (let [person-name (:data data)
                person-id (get person-name->person-id-table person-name)

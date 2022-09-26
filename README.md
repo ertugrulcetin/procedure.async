@@ -4,7 +4,6 @@ A Clojure library designed to ... well, that part is up to you.
 
 ## Example
 ```clj
-
 (ns favorite-songs.common
   (:require #?@(:cljs [[re-frame.core :refer [subscribe]]
                        [favorite-songs.network :refer [dispatch-pro]]
@@ -63,12 +62,17 @@ A Clojure library designed to ... well, that part is up to you.
 
      (reg-pro
        :get-favorite-songs-by-person
-       [:get-person-name->person-id-table :get-song-id->title-table :get-person-id->favorite-song-ids-table]
+       [:get-person-name->person-id-table 
+        :get-song-id->title-table
+        :get-person-id->favorite-song-ids-table]
        {:data [:map
                [:data string?]]
         :response [:map
                    [:songs [:vector string?]]]}
-       (fn [[person-name->person-id-table song-id->title-table person-id->favorite-song-ids-table {:keys [req socket data]}]]
+       (fn [[person-name->person-id-table
+             song-id->title-table
+             person-id->favorite-song-ids-table
+             {:keys [req socket data]}]]
          (println "Payload is: " data)
          (let [person-name (:data data)
                person-id (get person-name->person-id-table person-name)
@@ -87,8 +91,6 @@ A Clojure library designed to ... well, that part is up to you.
        [:option {:value "Dwight"} "Dwight"]]
       [:br]
       [:span "Favorite songs: " @(subscribe [:favorite-songs])]]))
-
-
 ```
 
 ## License
