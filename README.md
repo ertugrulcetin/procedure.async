@@ -3,15 +3,10 @@
 A Clojure library designed to ... well, that part is up to you.
 
 ## Example
-```clj
-(ns favorite-songs.common
-  (:require #?@(:cljs [[re-frame.core :refer [subscribe]]
-                       [favorite-songs.network :refer [dispatch-pro]]
-                       [favorite-songs.subs]]
-                :clj  [[procedure.async :refer [reg-pro register-validation-fn!]]
-                       [malli.core :as m]
-                       [malli.error :as me]])))
 
+Let's prepare our mock data - they are like DB tables.
+
+```clj
 (def person-name->person-id {"Michael" 1
                              "Pam" 2
                              "Oscar" 3
@@ -31,6 +26,18 @@ A Clojure library designed to ... well, that part is up to you.
    2 [44 55]
    3 [66 77]
    4 [88 99]})
+```
+
+Here, we're going to define our **reg-pro**s;
+
+```clj
+(ns favorite-songs.common
+  (:require #?@(:cljs [[re-frame.core :refer [subscribe]]
+                       [favorite-songs.network :refer [dispatch-pro]]
+                       [favorite-songs.subs]]
+                :clj  [[procedure.async :refer [reg-pro register-validation-fn!]]
+                       [malli.core :as m]
+                       [malli.error :as me]])))
 
 #?(:clj
    (do
