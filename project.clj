@@ -1,6 +1,6 @@
 (defproject procedure.async "0.1.0"
   :description "Async procedures for Clojure"
-  :url "http://example.com/FIXME"
+  :url "https://github.com/ertugrulcetin/procedure.async"
   :license {:name "MIT License"
             :url "https://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.11.1" :scope "provided"]
