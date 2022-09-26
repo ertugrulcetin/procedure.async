@@ -25,7 +25,7 @@
         (s/consume
           (fn [payload]
             (let [payload (msg/unpack payload)]
-              (pro.async/dispatch (:pro payload) {:data payload
+              (pro.async/dispatch (:pro payload) {:data (dissoc payload :pro)
                                                   :req req
                                                   :socket socket
                                                   :send-fn (fn [socket result]

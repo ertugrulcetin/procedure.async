@@ -58,7 +58,6 @@
        :get-favorite-songs-by-person
        [:get-person-name->person-id-table :get-song-id->title-table :get-person-id->favorite-song-ids-table]
        {:data [:map
-               [:pro keyword?]
                [:data string?]]
         :response [:map
                    [:songs [:vector string?]]]}
