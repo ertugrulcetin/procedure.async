@@ -1,8 +1,19 @@
 # procedure.async
 
-A Clojure library designed to ... well, that part is up to you.
+**procedure.async** provides async procedures for Clojure.
 
-## Example
+## reg-pro
+**reg-pro** is the core construct for defining async procedures. It is kind of defining `defn` with async feature. Let's see how it works with simple examples;
+
+```clj
+(reg-pro
+  :current-user
+  (fn [{:keys [req]}]
+    (println "Request: " req)
+    {:user (fetch-user-by-username (-> req :query-params (get "username")))}))
+```
+
+## Example - [Full example](https://github.com/ertugrulcetin/procedure.async/tree/master/examples/favorite-songs)
 
 Let's prepare our mock data - they are like DB tables.
 
@@ -28,7 +39,24 @@ Let's prepare our mock data - they are like DB tables.
    4 [88 99]})
 ```
 
-Here, we're going to define our **reg-pro**s;
+We need to set our websocket handler - (there is also HTTP version of it)
+```clj
+(defn ws-handler [req]
+  (-> (http/websocket-connection req)
+    (d/chain
+      (fn [socket]
+        (s/consume
+          (fn [payload]
+            (let [payload (msg/unpack payload)]
+              (pro.async/dispatch (:pro payload) {:data (dissoc payload :pro)
+                                                  :req req
+                                                  :socket socket
+                                                  :send-fn (fn [socket result]
+                                                             (s/put! socket (msg/pack result)))})))
+          socket)))))
+```
+
+Here, we're going to define our **reg-pro**s (You can find the [full example in here](https://github.com/ertugrulcetin/procedure.async/tree/master/examples/favorite-songs));
 
 ```clj
 (ns favorite-songs.common

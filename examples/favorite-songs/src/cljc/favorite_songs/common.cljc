@@ -26,12 +26,18 @@
    3 [66 77]
    4 [88 99]})
 
+(reg-pro
+  :current-user
+  (fn [{:keys [req]}]
+    (println "Request: " req)
+    {:user (fetch-user-by-username (-> req :query-params (get "username")))}))
+
 #?(:clj
    (do
      (register-validation-fn!
        (fn [schema data]
          (or (m/validate schema data)
-             (me/humanize (m/explain schema data)))))
+           (me/humanize (m/explain schema data)))))
 
      (reg-pro
        :get-person-name->person-id-table

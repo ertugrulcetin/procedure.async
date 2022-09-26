@@ -4,7 +4,11 @@
 
 To start the frontend application, run:
 
-    npm run watch
+```
+npm i
+
+npm run watch
+```
 
 To start a web server for the application, run:
 
