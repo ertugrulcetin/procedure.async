@@ -1,0 +1,1 @@
+web: java -Dclojure.main.report=stderr -cp target/uberjar/favorite-songs.jar clojure.main -m favorite-songs.core

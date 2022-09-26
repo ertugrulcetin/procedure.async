@@ -1,0 +1,30 @@
+{:nrepl {:port 8777}
+
+ :source-paths ["src/cljc" "src/cljs" "test"]
+
+ :dependencies
+ [[reagent "1.1.1"]
+  [re-frame "1.3.0"]
+  [binaryage/devtools "1.0.6"]
+  [haslett "0.1.7"]
+  [org.clojure/core.async "1.5.648"]
+  [applied-science/js-interop "0.3.1"]
+  [org.clojars.ertucetin/msgpack-cljs "0.1.2"]]
+
+ :dev-http
+ {8280 "resources/public"
+  8290 "target/browser-test"}
+
+ :builds
+ {:app
+  {:target :browser
+   :output-dir "resources/public/js/compiled"
+   :asset-path "/js/compiled"
+   :modules
+   {:app {:init-fn favorite-songs.core/init}}
+   :devtools
+   {:preloads []}
+   :dev
+   {:compiler-options
+    {:closure-defines
+     {}}}}}}

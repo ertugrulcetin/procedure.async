@@ -1,0 +1,31 @@
+/target
+/lib
+/classes
+/checkouts
+pom.xml
+dev-config.edn
+test-config.edn
+*.jar
+*.class
+/.lein-*
+profiles.clj
+/.env
+.nrepl-port
+
+/node_modules
+/log
+
+# Node.js dependencies
+/node_modules/
+
+# shadow-cljs cache, port files
+/.shadow-cljs/
+
+# Leiningen
+/.nrepl-port
+
+/out/
+/resources/public/js/compiled/
+/target/
+/*-init.clj
+/*.log

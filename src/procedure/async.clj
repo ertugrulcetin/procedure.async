@@ -31,6 +31,37 @@
   [f]
   (reset! validation-fn f))
 
+(defn dispatch
+  "Dispatches socket, req and data to procedure.
+  (dispatch ::get-employee-list-by-company {:req req
+                                            :socket socket
+                                            :data \"Company A\"
+                                            :send-fn (fn [socket result]
+                                                      (s/put! socket result))})"
+  [pro-name payload]
+  {:pre [((every-pred :req :socket :send-fn) payload)]}
+  (let [{:keys [stream async-flow] :as pro} (get @procedure-map pro-name)]
+    (when-not pro
+      (throw (ex-info (str "Procedure " pro " is not defined.") {})))
+    (when-not (realized? async-flow)
+      @async-flow)
+    (s/put! stream payload)))
+
+(defn dispatch-sync
+  "Sync version of dispatch function that returns a response. It's a blocking operation.
+   It should be used inside reg-pros (when there is a need for calling other reg-pros with different params)."
+  [pro-name payload]
+  {:pre [(:req payload)]}
+  (let [p (promise)]
+    (dispatch pro-name (assoc payload ::deliver (fn [_ result]
+                                                  (deliver p result))
+                                      :socket (fn [])
+                                      :send-fn (fn [_ _])))
+    @p))
+
+(defn cancel-pro [pro-name]
+  (some-> @procedure-map pro-name :stream (s/put! (Exception.))))
+
 (defmacro validate-if-exists [pro-name s param result]
   `(when-let [m# (get-in @procedure-map [~s :data-response-schema-map])]
      (when-not @validation-fn
@@ -169,34 +200,3 @@
                                     (-> m#
                                       (assoc-in [k# :stream] new-stream#)
                                       (assoc-in [k# :async-flow] (delay (eval `(create-async-flow ~k#)))))))))))))
-
-(defn dispatch
-  "Dispatches socket, req and data to procedure.
-  (dispatch ::get-employee-list-by-company {:req req
-                                            :socket socket
-                                            :data \"Company A\"
-                                            :send-fn (fn [socket result]
-                                                      (s/put! socket result))})"
-  [pro-name payload]
-  {:pre [((every-pred :req :socket :send-fn) payload)]}
-  (let [{:keys [stream async-flow] :as pro} (get @procedure-map pro-name)]
-    (when-not pro
-      (throw (ex-info (str "Procedure " pro " is not defined.") {})))
-    (when-not (realized? async-flow)
-      @async-flow)
-    (s/put! stream payload)))
-
-(defn dispatch-sync
-  "Sync version of dispatch function that returns a response. It's a blocking operation.
-   It should be used inside reg-pros (when there is a need for calling other reg-pros with different params)."
-  [pro-name payload]
-  {:pre [(:req payload)]}
-  (let [p (promise)]
-    (dispatch pro-name (assoc payload ::deliver (fn [_ result]
-                                                  (deliver p result))
-                                      :socket (fn [])
-                                      :send-fn (fn [_ _])))
-    @p))
-
-(defn cancel-pro [pro-name]
-  (some-> @procedure-map pro-name :stream (s/put! (Exception.))))
