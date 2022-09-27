@@ -1,4 +1,4 @@
-(defproject procedure.async "0.1.0"
+(defproject org.clojars.ertucetin/procedure.async "0.1.0"
   :description "Async procedures for Clojure"
   :url "https://github.com/ertugrulcetin/procedure.async"
   :license {:name "MIT License"

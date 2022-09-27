@@ -28,7 +28,7 @@
                  [ring/ring-core "1.9.5"]
                  [ring/ring-defaults "0.3.3"]
                  [selmer "1.12.53"]
-                 [procedure.async "0.1.0"]
+                 [org.clojars.ertucetin/procedure.async "0.1.0"]
                  [clojure-msgpack "1.2.1"]
                  [metosin/malli "0.8.9"]]
 
