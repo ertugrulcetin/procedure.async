@@ -2,6 +2,9 @@
 
 **procedure.async** provides async procedures for Clojure.
 
+## Installation
+[![Clojars Project](https://clojars.org/org.clojars.ertucetin/procedure.async/latest-version.svg)](https://clojars.org/org.clojars.ertucetin/procedure.async)
+
 ## reg-pro
 **reg-pro** is the core construct for defining async procedures, and it's like defining `defn` with an async feature. Let's see how it works with simple examples;
 
