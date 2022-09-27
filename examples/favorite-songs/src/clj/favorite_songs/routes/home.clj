@@ -7,7 +7,7 @@
    [aleph.http :as http]
    [manifold.deferred :as d]
    [manifold.stream :as s]
-   [procedure.async :refer [dispatch]]
+   [procedure.async :refer [dispatch dispatch-sync]]
    [msgpack.core :as msg]
    [msgpack.clojure-extensions]
    [favorite-songs.common]))
@@ -39,8 +39,8 @@
 
 (defn http-handler [{{:keys [pro data]} :params :as req}]
   {:status 200
-   :body (pro.async/dispatch-sync pro {:req req
-                                       :data data})})
+   :body (dispatch-sync pro {:req req
+                             :data data})})
 
 (defn home-routes []
   [""
