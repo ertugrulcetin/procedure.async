@@ -52,12 +52,12 @@
    It should be used inside reg-pros (when there is a need for calling other reg-pros with different params)."
   [pro-name payload]
   {:pre [(:req payload)]}
-  (let [p (promise)]
+  (let [d (d/deferred)]
     (dispatch pro-name (assoc payload ::deliver (fn [_ result]
-                                                  (deliver p result))
+                                                  (d/success! d result))
                                       :socket (fn [])
                                       :send-fn (fn [_ _])))
-    @p))
+    @d))
 
 (defn cancel-pro [pro-name]
   (some-> @procedure-map pro-name :stream (s/put! (Exception.))))
@@ -115,7 +115,7 @@
                (d/let-flow [~@(mapcat
                                 (fn [s#]
                                   [(symbol (merge-kw s#))
-                                   `(future
+                                   `(d/future
                                       (d/chain
                                         ~(symbol (merge-kw s#))
                                         (fn [_#]
