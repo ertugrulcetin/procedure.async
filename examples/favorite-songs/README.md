@@ -14,6 +14,8 @@ To start a web server for the application, run:
 
     lein run
 
+Open http://localhost:3000
+
 ## License
 
 Copyright © 2022 FIXME
