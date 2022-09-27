@@ -65,7 +65,7 @@
 (defmacro validate-if-exists [pro-name s param result]
   `(when-let [m# (get-in @procedure-map [~s :data-response-schema-map])]
      (when-not @validation-fn
-       (throw (ex-info "You need to register validation fn in order to use data validation!" {})))
+       (throw (ex-info "You need to register validation fn `(register-validation-fn!)` in order to use data validation!" {})))
      (let [validation-fn# @validation-fn
            data-validation-result# (when (:data m#)
                                      (validation-fn# (:data m#) ~param))
@@ -115,26 +115,27 @@
                (d/let-flow [~@(mapcat
                                 (fn [s#]
                                   [(symbol (merge-kw s#))
-                                   `(d/chain
-                                      ~(symbol (merge-kw s#))
-                                      (fn [_#]
-                                        (let [deps# ~(mapv (comp symbol merge-kw) (get-in @procedure-map [s# :deps]))]
-                                          (if (seq deps#)
-                                            (conj deps# ~'payload)
-                                            ~'payload)))
-                                      (fn [params#]
-                                        (when-not (or (and (vector? params#) (some #(instance? Throwable %) params#))
-                                                    (instance? Throwable params#)
-                                                    (nil? params#))
-                                          (try
-                                            (if-let [f# (get-in @procedure-map [~s# :fn])]
-                                              (let [result# ((f#) params#)
-                                                    data# (:data ~'payload)]
-                                                (validate-if-exists ~pro-name ~s# data# result#)
-                                                result#)
-                                              (throw (ex-info (str "Procedure not defined: " ~s#) {})))
-                                            (catch Throwable e#
-                                              e#)))))])
+                                   `(future
+                                      (d/chain
+                                        ~(symbol (merge-kw s#))
+                                        (fn [_#]
+                                          (let [deps# ~(mapv (comp symbol merge-kw) (get-in @procedure-map [s# :deps]))]
+                                            (if (seq deps#)
+                                              (conj deps# ~'payload)
+                                              ~'payload)))
+                                        (fn [params#]
+                                          (when-not (or (and (vector? params#) (some #(instance? Throwable %) params#))
+                                                      (instance? Throwable params#)
+                                                      (nil? params#))
+                                            (try
+                                              (if-let [f# (get-in @procedure-map [~s# :fn])]
+                                                (let [result# ((f#) params#)
+                                                      data# (:data ~'payload)]
+                                                  (validate-if-exists ~pro-name ~s# data# result#)
+                                                  result#)
+                                                (throw (ex-info (str "Procedure not defined: " ~s#) {})))
+                                              (catch Throwable e#
+                                                e#))))))])
                                 topo-sorted-deps)]
                  (log/debug "All procedures are realized -" ~pro-name)
                  (try
@@ -155,7 +156,24 @@
 
 (defmacro reg-pro
   "Defines a procedure with any doc-string or deps added to the procedure map.
-   data-&-response-schema-map? defines a map with optional keys :data and :response that contain data or response schema."
+   data-&-response-schema-map? defines a map with optional keys :data and :response that contain data or response schema.
+
+   e.g.;
+   (reg-pro
+    :current-user
+    (fn [{:keys [req]}]
+     (println \"Request: \" req)
+     {:user (get-user-by-username (-> req :query-params (get \"username\")))}))
+
+  (reg-pro
+   :get-current-users-favorite-songs
+   [:current-user]
+   {:data [:map [:category string?]]
+    :response [:map [:songs (vector string?)]]}
+   (fn [current-user {:keys [req data]}]
+     (let [user-id (-> current-user :user :id)
+           music-category (:category data)]
+       {:songs (get-favorite-songs-by-user-id-and-music-category user-id music-category)})))"
   {:arglists '([name-kw doc-string? deps? data-&-response-schema-map? body])}
   [pro-name & fdecl]
   (when-not *compile-files*

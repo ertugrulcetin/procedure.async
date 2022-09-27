@@ -3,19 +3,53 @@
 **procedure.async** provides async procedures for Clojure.
 
 ## reg-pro
-**reg-pro** is the core construct for defining async procedures. It is kind of defining `defn` with async feature. Let's see how it works with simple examples;
+**reg-pro** is the core construct for defining async procedures, and it's like defining `defn` with an async feature. Let's see how it works with simple examples;
 
 ```clj
 (reg-pro
   :current-user
   (fn [{:keys [req]}]
     (println "Request: " req)
-    {:user (fetch-user-by-username (-> req :query-params (get "username")))}))
+    {:user (get-user-by-username (-> req :query-params (get "username")))}))
 ```
+What did we do so far?
+- Registered procedure with id `:current-user`
+- Defined the body
+- Fetched username from request, made the DB call to get the user object and returned it.
+
+If we're going to validate procedures, we need to register a validation fn like the below;
+```clj
+;; This will be called one time.
+(register-validation-fn!
+  (fn [schema data]
+    (or (m/validate schema data)
+        (me/humanize (m/explain schema data)))))
+```
+
+Let's define the last procedure;
+```clj  
+(reg-pro
+  :get-current-users-favorite-songs
+  [:current-user]
+  {:data [:map
+          [:category string?]]
+   :response [:map
+              [:songs (vector string?)]]}
+  (fn [current-user {:keys [req data]}]
+    (let [user-id (-> current-user :user :id)
+          music-category (:category data)]
+      {:songs (get-favorite-songs-by-user-id-and-music-category user-id music-category)})))
+```
+
+- We required the `:current-user` procedure as a dependency inside a vector. (**reg-pros can have multiple dependencies - it is like re-frame's reg-sub**)
+  - When all dependencies are realized, the procedure's body will be called.
+  - Dependencies of a procedure run/realize asynchronously.
+- Defined a schema map for both the payload and the response for procedure validation. See the `:data` and `:response` keys.
+- Finally, returning the response with a list of songs fetched from the DB.
 
 ## Example - [Full example](https://github.com/ertugrulcetin/procedure.async/tree/master/examples/favorite-songs)
 
-Let's prepare our mock data - they are like DB tables.
+Let's prepare our mock data - we assume they are like DB tables.
 
 ```clj
 (def person-name->person-id {"Michael" 1
@@ -39,7 +73,7 @@ Let's prepare our mock data - they are like DB tables.
    4 [88 99]})
 ```
 
-We need to set our websocket handler - (there is also HTTP version of it)
+We need to define our websocket handler - (there is also [an HTTP version](https://github.com/ertugrulcetin/procedure.async/blob/master/examples/favorite-songs/src/clj/favorite_songs/routes/home.clj#L40))
 ```clj
 (require '[procedure.async :refer [dispatch]])
 
@@ -49,16 +83,15 @@ We need to set our websocket handler - (there is also HTTP version of it)
       (fn [socket]
         (s/consume
           (fn [payload]
-            (let [payload (msg/unpack payload)]
-              (dispatch (:pro payload) {:data (dissoc payload :pro)
-                                        :req req
-                                        :socket socket
-                                        :send-fn (fn [socket result]
-                                                   (s/put! socket (msg/pack result)))})))
+            (dispatch (:pro payload) {:data (dissoc payload :pro)
+                                      :req req
+                                      :socket socket
+                                      :send-fn (fn [socket result]
+                                                 (s/put! socket result))}))
           socket)))))
 ```
 
-Here, we're going to define our **reg-pro**s (You can find the [full example in here](https://github.com/ertugrulcetin/procedure.async/tree/master/examples/favorite-songs));
+Here, we're going to define our **reg-pro**s (You can find the [full example here](https://github.com/ertugrulcetin/procedure.async/tree/master/examples/favorite-songs));
 
 ```clj
 (ns favorite-songs.common
