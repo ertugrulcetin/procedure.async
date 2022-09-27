@@ -26,12 +26,6 @@
    3 [66 77]
    4 [88 99]})
 
-(reg-pro
-  :current-user
-  (fn [{:keys [req]}]
-    (println "Request: " req)
-    {:user (fetch-user-by-username (-> req :query-params (get "username")))}))
-
 #?(:clj
    (do
      (register-validation-fn!
