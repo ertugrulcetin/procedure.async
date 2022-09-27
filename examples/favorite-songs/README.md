@@ -18,4 +18,4 @@ Open http://localhost:3000
 
 ## License
 
-Copyright © 2022 FIXME
+Copyright © 2022 MIT
