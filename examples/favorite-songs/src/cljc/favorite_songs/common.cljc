@@ -43,7 +43,7 @@
      (reg-pro
        :get-song-id->title-table
        (fn [_]
-         (println "Fetching person-name->person-id table...")
+         (println "Fetching song-id->title table...")
          (Thread/sleep 30)
          song-id->title))
 

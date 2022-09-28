@@ -6,7 +6,7 @@
 [![Clojars Project](https://clojars.org/org.clojars.ertucetin/procedure.async/latest-version.svg)](https://clojars.org/org.clojars.ertucetin/procedure.async)
 
 ## reg-pro
-**reg-pro** is the core construct for defining async procedures, and it's like defining `defn` with an async feature. Let's see how it works with simple examples;
+**reg-pro** is the core construct for defining async procedures. Let's see how it works with simple examples;
 
 ```clj
 (reg-pro
@@ -38,13 +38,13 @@ Let's define the last procedure;
           [:category string?]]
    :response [:map
               [:songs (vector string?)]]}
-  (fn [current-user {:keys [req data]}]
+  (fn [[current-user {:keys [req data]}]]
     (let [user-id (-> current-user :user :id)
           music-category (:category data)]
       {:songs (get-favorite-songs-by-user-id-and-music-category user-id music-category)})))
 ```
 
-- We required the `:current-user` procedure as a dependency inside a vector. (**reg-pros can have multiple dependencies - it is like re-frame's reg-sub**)
+- We required the `:current-user` procedure as a dependency inside a vector. (**reg-pros can have multiple dependencies - similar to re-frame's reg-sub**)
   - When all dependencies are realized, the procedure's body will be called.
   - Dependencies of a procedure run/realize asynchronously.
 - Defined a schema map for both the payload and the response for procedure validation. See the `:data` and `:response` keys.
@@ -86,6 +86,7 @@ We need to define our websocket handler - (there is also [an HTTP version](https
       (fn [socket]
         (s/consume
           (fn [payload]
+            ;; Dispatching message from the client
             (dispatch (:pro payload) {:data (dissoc payload :pro)
                                       :req req
                                       :socket socket
@@ -122,7 +123,7 @@ Here, we're going to define our **reg-pro**s (You can find the [full example her
      (reg-pro
        :get-song-id->title-table
        (fn [_]
-         (println "Fetching person-name->person-id table...")
+         (println "Fetching song-id->title table...")
          (Thread/sleep 30)
          song-id->title))
 
