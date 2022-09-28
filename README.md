@@ -39,7 +39,7 @@ Let's define the last procedure;
   {:data [:map
           [:category string?]]
    :response [:map
-              [:songs (vector string?)]]}
+              [:songs [:vector string?]]]}
   (fn [[current-user {:keys [req data]}]]
     (let [user-id (-> current-user :user :id)
           music-category (:category data)]
