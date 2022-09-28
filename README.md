@@ -9,6 +9,8 @@
 **reg-pro** is the core construct for defining async procedures. Let's see how it works with simple examples;
 
 ```clj
+(require '[procedure.async :refer [reg-pro]])
+
 (reg-pro
   :current-user
   (fn [{:keys [req]}]
