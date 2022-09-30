@@ -5,6 +5,15 @@
 ## Installation
 [![Clojars Project](https://clojars.org/org.clojars.ertucetin/procedure.async/latest-version.svg)](https://clojars.org/org.clojars.ertucetin/procedure.async)
 
+## Why?
+- It'd be interesting to have **re-frame's reg-sub** like flow on the backend (we have **reg-pro** - register procedure) - which forces us to develop handlers in a certain way
+- **reg-pro**s have dependencies (similar to **reg-sub**'s `:<- [:some-procedure-id]`) and they realize asynchronously, so that gives some computational power
+- It allows a more natural way to keep frontend and backend code in the same file (.CLJC) 
+  - Frontend communicates via procedure's id directly (e.g. `(dispatch-pro [:procedure-id payload-map])` - like dispatching re-frame event)
+  - We can implement re-usable/high-level UI components in the same file with **reg-pro**s, allowing us to have a close view of what is happening in a single unit.
+    - This design makes it easier to apply changes for both sides 
+    - Feels like **Storybook** for both frontend and backend!
+
 ## reg-pro
 **reg-pro** is the core construct for defining async procedures. Let's see how it works with simple examples;
 
@@ -35,12 +44,10 @@ Let's define the last procedure;
 ```clj  
 (reg-pro
   :get-current-users-favorite-songs
-  [:current-user]
-  {:data [:map
-          [:category string?]]
-   :response [:map
-              [:songs [:vector string?]]]}
-  (fn [[current-user {:keys [req data]}]]
+  [:current-user] ;; Requiring `:current-user` procedure as dependency
+  {:data [:map [:category string?]] ;; Schema validation for the payload
+   :response [:map [:songs [:vector string?]]]} ;; Schema validation for procedure's response
+  (fn [[current-user {:keys [req data]}]] ;; [req data] -> data is the payload that the client sent
     (let [user-id (-> current-user :user :id)
           music-category (:category data)]
       {:songs (get-favorite-songs-by-user-id-and-music-category user-id music-category)})))
