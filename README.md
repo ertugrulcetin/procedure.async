@@ -9,7 +9,7 @@
 - It'd be interesting to have **re-frame's reg-sub** like flow on the backend (we have **reg-pro** - register procedure) - which forces us to develop handlers in a certain way
 - **reg-pro**s have dependencies (similar to **reg-sub**'s `:<- [:some-procedure-id]`) and they realize asynchronously, so that gives some computational power
 - It allows a more natural way to keep frontend and backend code in the same file (.CLJC) 
-- Frontend communicates via procedure's id directly (e.g. `(dispatch-pro [:procedure-id payload-map])` - like dispatching re-frame event)
+- Frontend communicates with backend via procedure's id directly (e.g. `(dispatch-pro [:procedure-id payload-map])` - like dispatching re-frame event)
 - We can implement re-usable/high-level UI components in the same file with **reg-pro**s, allowing us to have a close view of what is happening in a single unit
 - This design makes it easier to apply changes for both sides 
 - Feels like **Storybook** for both frontend and backend!
